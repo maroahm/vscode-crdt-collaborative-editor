@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: thesis-backend
+    ports:
+      - "3000:3000" # WebSocket port
+      - "4433:4433/udp" # Future WebTransport port
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
