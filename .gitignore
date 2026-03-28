@@ -1,0 +1,10 @@
+node_modules/
+npm-debug.log
+.vscode-test/
+out/
+dist/
+*.png
+*.jpg
+*.jpeg
+.DS_Store
+Thumbs.db
