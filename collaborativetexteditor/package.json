@@ -34,6 +34,8 @@
     "eslint": "^9.39.3"
   },
   "dependencies": {
+    "@fails-components/webtransport": "^1.5.3",
+    "@fails-components/webtransport-transport-http3-quiche": "^1.5.3",
     "ws": "^8.20.0",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.30"
