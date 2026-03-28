@@ -1,0 +1,64 @@
+
+                
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTTP/3 Network Proxy</title>
+</head>
+<body>
+    <script>
+        const vscode = acquireVsCodeApi();
+        let transport, writer;
+
+        // Wait for VS Code to give us the "connect" command with the Room ID
+        window.addEventListener('message', async event => {
+            const message = event.data;
+            
+            if (message.type === 'connect') {
+                await connectWebTransport(message.roomId);
+            } 
+            else if (message.type === 'send-yjs-update' && writer) {
+                const uint8Data = new Uint8Array(message.data);
+                await writer.write(uint8Data);
+            }
+        });
+
+        async function connectWebTransport(roomId) {
+            try {
+                // ⚠️ PASTE YOUR COMMA-SEPARATED NUMBERS HERE
+                const hashArray = new Uint8Array([ 27, 5, 168, 213, 109, 254, 75, 61, 64, 32, 165, 206, 94, 234,
+                 167, 174, 139, 30, 160, 133, 143, 64, 123, 2, 223, 61, 28, 241, 34, 176, 179, 141]);
+                
+                // We always connect to the master router
+                transport = new WebTransport('https://127.0.0.1:4433/yjs-router', {
+                    serverCertificateHashes: [{ algorithm: "sha-256", value: hashArray }]
+                });
+                
+                await transport.ready;
+                vscode.postMessage({ type: 'status', message: `🔥 Connected to Server! Joining ${roomId}...` });
+
+                const stream = await transport.createBidirectionalStream();
+                writer = stream.writable.getWriter();
+                const reader = stream.readable.getReader();
+
+                // --- THE HANDSHAKE ---
+                // Send the Room ID as the very first packet
+                const encoder = new TextEncoder();
+                await writer.write(encoder.encode(roomId));
+
+                // Now transition to purely listening for Yjs binary data
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    vscode.postMessage({ type: 'yjs-update', data: Array.from(value) });
+                }
+
+            } catch (error) {
+                vscode.postMessage({ type: 'error', message: error.toString() });
+            }
+        }
+    </script>
+</body>
+</html>

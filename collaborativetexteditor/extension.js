@@ -1,132 +1,150 @@
-import * as vscode from 'vscode';
-import * as Y from 'yjs';
-import { WebsocketProvider } from 'y-websocket';
-import WebSocket from 'ws';
+const vscode = require('vscode');
+const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+const Y = require('yjs');
 
-export async function activate(context) {
-    console.log('🟢 Extension Activated! (Dynamic Routing Mode)');
+function activate(context) {
+    console.log('🔥 HTTP/3 UI Extension Activated!');
 
-    const ydoc = new Y.Doc();
-    const ytext = ydoc.getText('shared-file');
-    let wsProvider = null; 
-    let isApplyingRemoteChange = false;
+    let localDoc = new Y.Doc();
+    let yText = localDoc.getText('vscode-editor-sync');
+    let isApplyingRemoteUpdate = false;
+    let proxyPanel = null;
 
-    function connectToServer(roomCode) {
-        if (wsProvider) {
-            vscode.window.showWarningMessage('You are already connected to a session!');
+// --- COMMAND: Manage Session (Create or Join) ---
+    let sessionCommand = vscode.commands.registerCommand('collaborativetexteditor.manageSession', async () => {
+        
+        const action = await vscode.window.showQuickPick(['📝 Create New Room', '🔗 Join Existing Room'], {
+            placeHolder: 'Do you want to host a session or join one?'
+        });
+
+        if (!action) return; 
+
+        let roomId = "";
+
+        if (action === '📝 Create New Room') {
+            // Option 1: Auto-generate a secure 8-character ID
+            const randomHash = Math.random().toString(36).substring(2, 10);
+            roomId = `thesis-${randomHash}`;
+            
+            // Magically copy it to the user's clipboard!
+            await vscode.env.clipboard.writeText(roomId);
+            
+            vscode.window.showInformationMessage(`Room Created! ID: ${roomId} (Copied to Clipboard)`);
+        } 
+        else if (action === '🔗 Join Existing Room') {
+            // Option 2: Let the guest paste the ID
+            roomId = await vscode.window.showInputBox({
+                prompt: 'Enter the Room ID your host gave you',
+                placeHolder: 'thesis-a1b2c3d4'
+            });
+
+            if (!roomId) return; 
+            vscode.window.showInformationMessage(`Joining room: ${roomId}...`);
+        }
+        
+        // Boot up the Proxy and connect using the ID!
+        startNetworkProxy(context, roomId);
+    });
+
+    context.subscriptions.push(sessionCommand);
+
+    // --- THE NETWORK BOOT SEQUENCE ---
+    function startNetworkProxy(context, roomId) {
+        if (proxyPanel) {
+            vscode.window.showWarningMessage('You are already in a session!');
             return;
         }
 
-        vscode.window.showInformationMessage(`Connecting to Room: ${roomCode}...`);
-
-        wsProvider = new WebsocketProvider(
-            'ws://localhost:3000',
-            roomCode,
-            ydoc,
-            { WebSocketPolyfill: WebSocket }
+        // Create the hidden Webview
+        proxyPanel = vscode.window.createWebviewPanel(
+            'http3Proxy',
+            `HTTP/3 Proxy (${roomId})`,
+            vscode.ViewColumn.Beside, 
+            { enableScripts: true, retainContextWhenHidden: true }
         );
 
-        wsProvider.on('status', event => {
-            console.log(`[Network Status - Room ${roomCode}]: ${event.status}`); 
-            if (event.status === 'connected') {
-                vscode.window.showInformationMessage(`✅ Successfully joined session: ${roomCode}`);
+        const htmlPath = path.join(context.extensionPath, 'network-proxy.html');
+        proxyPanel.webview.html = fs.readFileSync(htmlPath, 'utf8');
+
+        // INCOMING NETWORK -> VS CODE
+        proxyPanel.webview.onDidReceiveMessage(message => {
+            if (message.type === 'status') {
+                vscode.window.showInformationMessage(message.message);
+            } else if (message.type === 'yjs-update') {
+                const update = new Uint8Array(message.data);
+                Y.applyUpdate(localDoc, update);
             }
         });
-        const awareness = wsProvider.awareness;
 
-        vscode.window.onDidChangeTextEditorSelection(event => {
-            const editor = vscode.window.activeTextEditor;
-            
-            if (editor && event.textEditor === editor) {
-                const position = editor.selection.active; 
-                
-                awareness.setLocalStateField('cursorData', {
-                    line: position.line+1,
-                    character: position.character,
-                    timestamp: Date.now() 
+        // OUTGOING VS CODE -> NETWORK
+        localDoc.on('update', (update, origin) => {
+            if (origin === 'vscode-local') {
+                proxyPanel.webview.postMessage({
+                    type: 'send-yjs-update',
+                    data: Array.from(update)
                 });
             }
         });
+
+        // Tell the proxy to connect to this specific room!
+        // (We will update the HTML file to catch this next)
+        // Tell the proxy to connect and pass the Room ID!
+        proxyPanel.webview.postMessage({
+            type: 'connect',
+            roomId: roomId
+        });
     }
 
-    ytext.observe(event => {
-        if (event.transaction.origin === 'vscode') return;
+    // --- THE EDITOR BINDING (Ghost Typing) ---
+    yText.observe(event => {
+        if (event.transaction.origin === 'vscode-local') return;
 
         const editor = vscode.window.activeTextEditor;
         if (!editor) return;
 
-        const edit = new vscode.WorkspaceEdit();
-        let originalDocOffset = 0; 
-        
-        for (const op of event.delta) {
-            if (op.retain) {
-                originalDocOffset += op.retain;
-            } else if (op.insert) {
-                const pos = editor.document.positionAt(originalDocOffset);
-                edit.insert(editor.document.uri, pos, op.insert);
-            } else if (op.delete) {
-                const startPos = editor.document.positionAt(originalDocOffset);
-                const endPos = editor.document.positionAt(originalDocOffset + op.delete);
-                edit.delete(editor.document.uri, new vscode.Range(startPos, endPos));
-                originalDocOffset += op.delete;
-            }
-        }
+        isApplyingRemoteUpdate = true; 
 
-        isApplyingRemoteChange = true;
-        vscode.workspace.applyEdit(edit).then(() => {
-            setTimeout(() => { isApplyingRemoteChange = false; }, 10);
+        editor.edit(editBuilder => {
+            let currentIndex = 0;
+            event.delta.forEach(op => {
+                if (op.retain) {
+                    currentIndex += op.retain;
+                } else if (op.insert) {
+                    const pos = editor.document.positionAt(currentIndex);
+                    editBuilder.insert(pos, op.insert);
+                    currentIndex += op.insert.length;
+                } else if (op.delete) {
+                    const startPos = editor.document.positionAt(currentIndex);
+                    const endPos = editor.document.positionAt(currentIndex + op.delete);
+                    editBuilder.delete(new vscode.Range(startPos, endPos));
+                }
+            });
+        }, { undoStopBefore: false, undoStopAfter: false }).then(() => {
+            isApplyingRemoteUpdate = false; 
         });
     });
 
     vscode.workspace.onDidChangeTextDocument(event => {
-        if (isApplyingRemoteChange || event.contentChanges.length === 0) return;
+        if (isApplyingRemoteUpdate) return;
+        
+        const editor = vscode.window.activeTextEditor;
+        if (!editor || event.document !== editor.document) return;
 
-        ydoc.transact(() => {
+        localDoc.transact(() => {
             event.contentChanges.forEach(change => {
                 if (change.rangeLength > 0) {
-                    ytext.delete(change.rangeOffset, change.rangeLength);
+                    yText.delete(change.rangeOffset, change.rangeLength);
                 }
-                if (change.text !== '') {
-                    ytext.insert(change.rangeOffset, change.text);
+                if (change.text.length > 0) {
+                    yText.insert(change.rangeOffset, change.text);
                 }
             });
-        }, 'vscode'); 
+        }, 'vscode-local'); 
     });
-
-    let startSessionCommand = vscode.commands.registerCommand('collaborativetexteditor.helloWorld', async () => {
-        
-        const selection = await vscode.window.showInformationMessage(
-            'Welcome to the Collaborative Editor! What would you like to do?',
-            'Generate Room',
-            'Join Room'
-        );
-
-        if (selection === 'Generate Room') {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            
-            await vscode.env.clipboard.writeText(code);
-            connectToServer(code);
-            vscode.window.showInformationMessage(`Room created! Code '${code}' copied to clipboard.`);
-
-        } else if (selection === 'Join Room') {
-            const code = await vscode.window.showInputBox({
-                prompt: 'Enter the 6-character room code to join',
-                placeHolder: 'e.g. A7X9BQ'
-            });
-
-            if (code) {
-                connectToServer(code.toUpperCase()); 
-            }
-        }
-    });
-
-    context.subscriptions.push(startSessionCommand);
 }
 
-export function deactivate() {
-    console.log('🔴 Extension deactivated.');
-}
+function deactivate() {}
+
+module.exports = { activate, deactivate };

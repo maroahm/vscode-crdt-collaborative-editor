@@ -1,9 +1,9 @@
 {
   "name": "collaborativetexteditor",
-  "displayName": "CollaborativeTextEditor",
-  "description": "allows users to code together in a consisnt enviroment. ",
+  "displayName": "HTTP/3 Collaborative Editor",
+  "description": "Thesis Project: Yjs CRDT over QUIC",
   "version": "0.0.1",
-  "type": "module",
+  "publisher": "omar",
   "engines": {
     "vscode": "^1.110.0"
   },
@@ -15,8 +15,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "collaborativetexteditor.helloWorld",
-        "title": "Hello World"
+        "command": "collaborativetexteditor.manageSession",
+        "title": "HTTP/3 Yjs: Manage Session"
       }
     ]
   },

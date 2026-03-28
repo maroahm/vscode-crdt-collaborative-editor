@@ -1,8 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { Http3Server } from '@fails-components/webtransport';
+import * as Y from 'yjs';
+
+// Central memory bank for all active collaborative rooms
+// Maps RoomID -> { doc: Y.Doc, clients: Set<Writers> }
+const activeRooms = new Map();
 
 async function startWebTransportServer() {
-    console.log('Booting HTTP/3 QUIC Server...');
+    console.log('Booting HTTP/3 Yjs Multiplexing Server...');
 
     try {
         const key = await readFile('../collaborativetexteditor/key.pem');
@@ -17,62 +22,75 @@ async function startWebTransportServer() {
         });
 
         h3Server.startServer();
-        console.log('🚀 WebTransport Server running securely on https://127.0.0.1:4433');
+        console.log('WebTransport Router running on https://127.0.0.1:4433/yjs-router');
         
-        const sessionStream = h3Server.sessionStream('/yjs-room');
+        // ALL clients connect to this single router endpoint
+        const sessionStream = h3Server.sessionStream('/yjs-router');
         const sessionReader = sessionStream.getReader();
-
-        console.log('Waiting for clients to connect...');
 
         while (true) {
             const { done, value: session } = await sessionReader.read();
             if (done) break;
-            
-            console.log('\n✅ New WebTransport Client Connected!');
-            
             handleClientSession(session);
         }
 
     } catch (error) {
-        console.error('❌ Failed to start HTTP/3 Server:', error);
+        console.error('Server Error:', error);
     }
 }
 
-// --- NEW: The Data Pipe Handler ---
 async function handleClientSession(session) {
     try {
-        // L
-        // isten for new bidirectional streams opened by the client
         const bidiReader = session.incomingBidirectionalStreams.getReader();
         
         while (true) {
             const { done, value: stream } = await bidiReader.read();
             if (done) break;
             
-            console.log('🌊 New QUIC Bidirectional Stream Opened!');
-            
-            // Setup readers and writers for this specific stream
             const reader = stream.readable.getReader();
             const writer = stream.writable.getWriter();
-            const decoder = new TextDecoder();
-            const encoder = new TextEncoder();
+            
+            // --- THE HANDSHAKE ---
+            // The very first packet on this stream is ALWAYS the Room ID in plain text
+            const { value: firstPacket } = await reader.read();
+            const roomId = new TextDecoder().decode(firstPacket);
+            
+            console.log(`\n🚪 User joined room: [${roomId}]`);
 
-            // Continuously listen for incoming messages on this stream
+            // If this room doesn't exist yet, create it!
+            if (!activeRooms.has(roomId)) {
+                console.log(`Creating new CRDT Document for [${roomId}]`);
+                activeRooms.set(roomId, {
+                    doc: new Y.Doc(),
+                    clients: new Set()
+                });
+            }
+
+            const room = activeRooms.get(roomId);
+            room.clients.add(writer);
+
+            // SYNC STEP 1: Send the current state of this specific room to the new user
+            const stateVector = Y.encodeStateAsUpdate(room.doc);
+            await writer.write(stateVector);
+
+            // SYNC STEP 2: Listen for Yjs math and broadcast to this room only
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 
-                // Decode the raw binary buffer back into text
-                const message = decoder.decode(value);
-                console.log(`📩 Received from Client: "${message}"`);
-
-                // Instantly shoot a reply back down the UDP tunnel
-                const reply = `Server ACK: I received "${message}" in record time!`;
-                await writer.write(encoder.encode(reply));
+                Y.applyUpdate(room.doc, value);
+                
+                for (const clientWriter of room.clients) {
+                    if (clientWriter !== writer) {
+                        clientWriter.write(value).catch(() => {
+                            room.clients.delete(clientWriter);
+                        });
+                    }
+                }
             }
         }
     } catch (error) {
-        console.log('⚠️ Session closed or errored.');
+        console.log('Peer disconnected.');
     }
 }
 

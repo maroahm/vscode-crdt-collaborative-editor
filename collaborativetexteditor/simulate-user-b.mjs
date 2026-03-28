@@ -3,7 +3,7 @@ import { WebsocketProvider } from 'y-websocket';
 import WebSocket from 'ws';
 import readline from 'readline';
 
-console.log('🟢 User B (Terminal Client) Booting Up...');
+console.log('User B (Terminal Client) Booting Up...');
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -44,7 +44,7 @@ rl.question('Enter the 6-character room code to join: ', (roomCode) => {
                 
                 if (state && state.cursorData) {
                     const tripLatency = Date.now() - state.cursorData.timestamp;
-                    console.log(`⏱️ [TCP LATENCY]: VS Code Cursor at Line ${state.cursorData.line}, Char ${state.cursorData.character} | Trip took: ${tripLatency}ms`);
+                    console.log(`[TCP LATENCY]: VS Code Cursor at Line ${state.cursorData.line}, Char ${state.cursorData.character} | Trip took: ${tripLatency}ms`);
                 }
             }
         });
@@ -54,7 +54,7 @@ rl.question('Enter the 6-character room code to join: ', (roomCode) => {
     ytext.observe(event => {
         console.clear();
         
-        console.log('🟢 Room Code:', code, '| LIVE DOCUMENT MIRROR');
+        console.log(' Room Code:', code, '| LIVE DOCUMENT MIRROR');
         console.log('Type your text and press ENTER to append to the document.\n');
         console.log('=========================================');
         console.log(ytext.toString()); 
@@ -78,7 +78,7 @@ rl.question('Enter the 6-character room code to join: ', (roomCode) => {
                     return; 
                 }
             }
-            console.log('⚠️ Invalid command. Format: /del [starting_index] [number_of_characters]');
+            console.log('Invalid command. Format: /del [starting_index] [number_of_characters]');
         } else {
             ydoc.transact(() => {
                 ytext.insert(ytext.length, text + '\n');
