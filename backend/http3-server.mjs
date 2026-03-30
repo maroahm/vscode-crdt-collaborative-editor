@@ -42,7 +42,6 @@ async function startWebTransportServer() {
 async function handleClientSession(session) {
     try {
         const bidiReader = session.incomingBidirectionalStreams.getReader();
-        
         while (true) {
             const { done, value: stream } = await bidiReader.read();
             if (done) break;
@@ -50,47 +49,64 @@ async function handleClientSession(session) {
             const reader = stream.readable.getReader();
             const writer = stream.writable.getWriter();
             
-            // --- THE HANDSHAKE ---
-            // The very first packet on this stream is ALWAYS the Room ID in plain text
-            const { value: firstPacket } = await reader.read();
-            const roomId = new TextDecoder().decode(firstPacket);
-            
-            console.log(`\n🚪 User joined room: [${roomId}]`);
+            // The NDJSON Buffer
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let roomId = null;
+            let room = null;
 
-            // If this room doesn't exist yet, create it!
-            if (!activeRooms.has(roomId)) {
-                console.log(`Creating new CRDT Document for [${roomId}]`);
-                activeRooms.set(roomId, {
-                    doc: new Y.Doc(),
-                    clients: new Set()
-                });
-            }
-
-            const room = activeRooms.get(roomId);
-            room.clients.add(writer);
-
-            // SYNC STEP 1: Send the current state of this specific room to the new user
-            const stateVector = Y.encodeStateAsUpdate(room.doc);
-            await writer.write(stateVector);
-
-            // SYNC STEP 2: Listen for Yjs math and broadcast to this room only
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 
-                Y.applyUpdate(room.doc, value);
+                // Add the new chunk to our running buffer
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop(); // Keep the last incomplete chunk in the buffer!
                 
-                for (const clientWriter of room.clients) {
-                    if (clientWriter !== writer) {
-                        clientWriter.write(value).catch(() => {
-                            room.clients.delete(clientWriter);
-                        });
+                for (const line of lines) {
+                    if (!line) continue;
+                    
+                    // A. THE HANDSHAKE (The very first line is the Room ID)
+                    if (!roomId) {
+                        roomId = line;
+                        console.log(`\n🚪 User joined room: [${roomId}]`);
+                        if (!activeRooms.has(roomId)) {
+                            activeRooms.set(roomId, { doc: new Y.Doc(), clients: new Set() });
+                        }
+                        room = activeRooms.get(roomId);
+                        room.clients.add(writer);
+                        
+                        // Send Initial State properly framed
+                        const stateVector = Y.encodeStateAsUpdate(room.doc);
+                        const syncMsg = JSON.stringify({ type: 'doc', data: Array.from(stateVector) }) + '\n';
+                        await writer.write(new TextEncoder().encode(syncMsg));
+                        continue;
+                    }
+                    
+                    // B. NORMAL MESSAGES
+                    try {
+                        const msg = JSON.parse(line);
+                        // Apply Document math to the server's master copy
+                        if (msg.type === 'doc') {
+                            Y.applyUpdate(room.doc, new Uint8Array(msg.data));
+                        }
+                        
+                        // Broadcast the framed line to everyone else
+                        const outData = new TextEncoder().encode(line + '\n');
+                        for (const clientWriter of room.clients) {
+                            if (clientWriter !== writer) {
+                                clientWriter.write(outData).catch(() => room.clients.delete(clientWriter));
+                            }
+                        }
+                    } catch (e) {
+                        console.log("Parse error, skipping chunk.");
                     }
                 }
             }
         }
     } catch (error) {
-        console.log('Peer disconnected.');
+        console.log('⚠️ Peer disconnected.');
     }
 }
 

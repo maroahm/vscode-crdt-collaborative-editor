@@ -1,148 +1,271 @@
+// @ts-nocheck
 const vscode = require('vscode');
-const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 const Y = require('yjs');
+const awarenessProtocol = require('y-protocols/awareness');
 
 function activate(context) {
-    console.log('🔥 HTTP/3 UI Extension Activated!');
+    console.log('🔥 HTTP/3 UI + Presence Extension Activated!');
 
     let localDoc = new Y.Doc();
     let yText = localDoc.getText('vscode-editor-sync');
-    let isApplyingRemoteUpdate = false;
+    let awareness = new awarenessProtocol.Awareness(localDoc);
+    
+    let remoteUpdateLock = 0;
     let proxyPanel = null;
+    let sharedDocumentUri = null;
+    let cursorDecorations = new Map(); // Tracks remote cursors to draw/clear them
 
-// --- COMMAND: Manage Session (Create or Join) ---
+
     let sessionCommand = vscode.commands.registerCommand('collaborativetexteditor.manageSession', async () => {
         
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            vscode.window.showErrorMessage('❌ Please open a text file first before starting a session!');
+            return;
+        }
+        sharedDocumentUri = activeEditor.document.uri.toString();
+
         const action = await vscode.window.showQuickPick(['📝 Create New Room', '🔗 Join Existing Room'], {
             placeHolder: 'Do you want to host a session or join one?'
         });
 
         if (!action) return; 
 
+        // --- NEW: Ask for Display Name ---
+        const userName = await vscode.window.showInputBox({
+            prompt: 'Enter your Display Name for this session',
+            placeHolder: 'e.g., Omar'
+        });
+
+        if (!userName) return; // Must have a name to join!
+
+        // Initialize local presence state
+        const myColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+        awareness.setLocalStateField('user', { name: userName, color: myColor });
+
         let roomId = "";
 
         if (action === '📝 Create New Room') {
-            // Option 1: Auto-generate a secure 8-character ID
             const randomHash = Math.random().toString(36).substring(2, 10);
             roomId = `thesis-${randomHash}`;
-            
-            // Magically copy it to the user's clipboard!
             await vscode.env.clipboard.writeText(roomId);
+            
+            const initialText = activeEditor.document.getText();
+            if (initialText.length > 0) yText.insert(0, initialText);
             
             vscode.window.showInformationMessage(`Room Created! ID: ${roomId} (Copied to Clipboard)`);
         } 
         else if (action === '🔗 Join Existing Room') {
-            // Option 2: Let the guest paste the ID
-            roomId = await vscode.window.showInputBox({
-                prompt: 'Enter the Room ID your host gave you',
-                placeHolder: 'thesis-a1b2c3d4'
-            });
-
+            roomId = await vscode.window.showInputBox({ prompt: 'Enter the Room ID' });
             if (!roomId) return; 
+            const newDoc = await vscode.workspace.openTextDocument({
+                content: '',
+                language: activeEditor.document.languageId
+            })
+            const newEditor = await vscode.window.showTextDocument(newDoc);
+            sharedDocumentUri = newEditor.document.uri.toString();
             vscode.window.showInformationMessage(`Joining room: ${roomId}...`);
         }
         
-        // Boot up the Proxy and connect using the ID!
         startNetworkProxy(context, roomId);
     });
 
     context.subscriptions.push(sessionCommand);
 
-    // --- THE NETWORK BOOT SEQUENCE ---
     function startNetworkProxy(context, roomId) {
+        // If the panel already exists, just bring it to the front!
         if (proxyPanel) {
-            vscode.window.showWarningMessage('You are already in a session!');
+            proxyPanel.reveal(vscode.ViewColumn.Beside);
             return;
         }
 
-        // Create the hidden Webview
         proxyPanel = vscode.window.createWebviewPanel(
-            'http3Proxy',
-            `HTTP/3 Proxy (${roomId})`,
-            vscode.ViewColumn.Beside, 
+            'http3Proxy', `HTTP/3 Proxy (${roomId})`, vscode.ViewColumn.Beside, 
             { enableScripts: true, retainContextWhenHidden: true }
         );
 
-        const htmlPath = path.join(context.extensionPath, 'network-proxy.html');
-        proxyPanel.webview.html = fs.readFileSync(htmlPath, 'utf8');
+        // CLEANUP: If the user closes the proxy tab, reset our variable!
+        proxyPanel.onDidDispose(() => {
+            proxyPanel = null;
+        }, null, context.subscriptions);
 
-        // INCOMING NETWORK -> VS CODE
+        proxyPanel.webview.html = fs.readFileSync(path.join(context.extensionPath, 'network-proxy.html'), 'utf8');
+
+        // --- ROUTER: INCOMING FROM NETWORK ---
         proxyPanel.webview.onDidReceiveMessage(message => {
             if (message.type === 'status') {
                 vscode.window.showInformationMessage(message.message);
-            } else if (message.type === 'yjs-update') {
-                const update = new Uint8Array(message.data);
-                Y.applyUpdate(localDoc, update);
+            } else if (message.type === 'incoming-msg') {
+                const payload = message.payload;
+                if (payload.type === 'doc') {
+                    Y.applyUpdate(localDoc, new Uint8Array(payload.data));
+                } else if (payload.type === 'awareness') {
+                    awarenessProtocol.applyAwarenessUpdate(awareness, new Uint8Array(payload.data), 'network');
+                }
             }
         });
 
-        // OUTGOING VS CODE -> NETWORK
+        // --- ROUTER: OUTGOING TO NETWORK ---
+        // 1. Send Yjs Document math
         localDoc.on('update', (update, origin) => {
-            if (origin === 'vscode-local') {
-                proxyPanel.webview.postMessage({
-                    type: 'send-yjs-update',
-                    data: Array.from(update)
+            // SAFETY CHECK: Ensure proxyPanel isn't null before sending!
+            if (origin === 'vscode-local' && proxyPanel) {
+                proxyPanel.webview.postMessage({ 
+                    type: 'send-msg', 
+                    payload: { type: 'doc', data: Array.from(update) } 
                 });
             }
         });
 
-        // Tell the proxy to connect to this specific room!
-        // (We will update the HTML file to catch this next)
-        // Tell the proxy to connect and pass the Room ID!
-        proxyPanel.webview.postMessage({
-            type: 'connect',
-            roomId: roomId
+        // 2. Send Awareness math
+        awareness.on('update', ({ added, updated, removed }, origin) => {
+            // SAFETY CHECK: Ensure proxyPanel isn't null before sending!
+            if (origin === 'local' && proxyPanel) {
+                const changedClients = added.concat(updated, removed);
+                const update = awarenessProtocol.encodeAwarenessUpdate(awareness, changedClients);
+                proxyPanel.webview.postMessage({ 
+                    type: 'send-msg', 
+                    payload: { type: 'awareness', data: Array.from(update) } 
+                });
+            }
         });
+
+        proxyPanel.webview.postMessage({ type: 'connect', roomId: roomId });
     }
 
-    // --- THE EDITOR BINDING (Ghost Typing) ---
+    // --- CURSOR LOGIC: Send my cursor position to the network ---
+    vscode.window.onDidChangeTextEditorSelection(event => {
+        if (event.textEditor.document.uri.toString() !== sharedDocumentUri) return;
+        
+        // Find exact character index of the cursor
+        const offset = event.textEditor.document.offsetAt(event.selections[0].active);
+        const relativePos = Y.createRelativePositionFromTypeIndex(yText, offset);
+        const encodedPos = Array.from(Y.encodeRelativePosition(relativePos));
+
+        awareness.setLocalStateField('cursor', {encodedData: encodedPos,index: offset });
+    });
+
+    // --- CURSOR LOGIC: Draw remote cursors on my screen ---
+    // --- UI LOGIC: Draw remote cursors & update Sidebar ---
+    // --- UI LOGIC: Draw remote cursors & update Sidebar ---
+    awareness.on('change', () => {
+        
+        // 1. Update the HTML Sidebar Dashboard
+        if (proxyPanel) {
+            const states = Array.from(awareness.getStates().entries());
+            const activeUsers = states
+                .filter(([id, state]) => state.user) 
+                .map(([id, state]) => ({
+                    name: state.user.name,
+                    color: state.user.color,
+                    isMe: id === awareness.clientID
+                }));
+            proxyPanel.webview.postMessage({ type: 'update-users', users: activeUsers });
+        }
+
+        const targetEditor = vscode.window.visibleTextEditors.find(e => e.document.uri.toString() === sharedDocumentUri);
+        if (!targetEditor) return;
+
+        // Safely calculate doc length WITHOUT loading the whole file string into memory
+        const docLength = targetEditor.document.offsetAt(
+            targetEditor.document.lineAt(targetEditor.document.lineCount - 1).range.end
+        );
+
+        // 2. Draw the clean, relative cursors
+        awareness.getStates().forEach((state, clientId) => {
+            if (clientId === awareness.clientID) return; 
+
+            // If the user hasn't clicked anywhere or is missing data, ignore/clear them
+            if (!state.cursor || !state.user || !state.cursor.encodedData) {
+                if (cursorDecorations.has(clientId)) {
+                    cursorDecorations.get(clientId).dispose();
+                    cursorDecorations.delete(clientId);
+                }
+                return;
+            }
+
+            try {
+                // 1. Decode the mathematical CRDT position (NO MORE DUMB INTEGERS!)
+                const decodedArray = new Uint8Array(state.cursor.encodedData);
+                const relativePos = Y.decodeRelativePosition(decodedArray);
+                const absolutePos = Y.createAbsolutePositionFromRelativePosition(relativePos, localDoc);
+                
+                if (absolutePos !== null) {
+                    const safeIndex = absolutePos.index;
+
+                    // 2. Draw the undeniable 1-character block using the mathematically correct index
+                    const startPos = targetEditor.document.positionAt(safeIndex);
+                    
+                    // VS Code safely handles index+1 even if it's at the end of the file
+                    const endPos = targetEditor.document.positionAt(safeIndex); 
+                    const range = new vscode.Range(startPos, endPos); 
+                    
+                    if (!cursorDecorations.has(clientId)) {
+                        const newDec = vscode.window.createTextEditorDecorationType({
+                            backgroundColor: `${state.user.color}80`, // 50% transparent block
+                            border: `1px solid ${state.user.color}`
+                        });
+                        cursorDecorations.set(clientId, newDec);
+                    }
+
+                    const cursorDec = cursorDecorations.get(clientId);
+                    targetEditor.setDecorations(cursorDec, [range]);
+                }
+            } catch (e) {
+                console.log('Failed to map CRDT cursor.');
+            }
+        });
+    });
+
+    // --- TEXT LOGIC ---
+    // --- TEXT LOGIC: INCOMING ---
     yText.observe(event => {
         if (event.transaction.origin === 'vscode-local') return;
+        const targetEditor = vscode.window.visibleTextEditors.find(e => e.document.uri.toString() === sharedDocumentUri);
+        if (!targetEditor) return;
 
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) return;
+        // LOCK THE MUTEX
+        remoteUpdateLock++; 
 
-        isApplyingRemoteUpdate = true; 
-
-        editor.edit(editBuilder => {
-            let currentIndex = 0;
+        targetEditor.edit(editBuilder => {
+            let originalIndex = 0;
             event.delta.forEach(op => {
-                if (op.retain) {
-                    currentIndex += op.retain;
-                } else if (op.insert) {
-                    const pos = editor.document.positionAt(currentIndex);
-                    editBuilder.insert(pos, op.insert);
-                    currentIndex += op.insert.length;
-                } else if (op.delete) {
-                    const startPos = editor.document.positionAt(currentIndex);
-                    const endPos = editor.document.positionAt(currentIndex + op.delete);
+                if (op.retain){ 
+                    originalIndex += op.retain;
+                }else if (op.insert && typeof op.insert === 'string') {
+                    editBuilder.insert(targetEditor.document.positionAt(originalIndex), op.insert);
+                } 
+                else if (op.delete) {
+                    const startPos = targetEditor.document.positionAt(originalIndex);
+                    const endPos = targetEditor.document.positionAt(originalIndex + op.delete);
                     editBuilder.delete(new vscode.Range(startPos, endPos));
                 }
             });
-        }, { undoStopBefore: false, undoStopAfter: false }).then(() => {
-            isApplyingRemoteUpdate = false; 
-        });
+        }, { undoStopBefore: false, undoStopAfter: false });
     });
 
+    // --- TEXT LOGIC: OUTGOING ---
     vscode.workspace.onDidChangeTextDocument(event => {
-        if (isApplyingRemoteUpdate) return;
-        
-        const editor = vscode.window.activeTextEditor;
-        if (!editor || event.document !== editor.document) return;
+        if (event.document.uri.toString() !== sharedDocumentUri) return;
+
+        // CHECK THE MUTEX
+        if (remoteUpdateLock > 0) {
+            remoteUpdateLock--;
+            return; 
+        }
 
         localDoc.transact(() => {
             event.contentChanges.forEach(change => {
-                if (change.rangeLength > 0) {
-                    yText.delete(change.rangeOffset, change.rangeLength);
-                }
-                if (change.text.length > 0) {
-                    yText.insert(change.rangeOffset, change.text);
-                }
+                if (change.rangeLength > 0) yText.delete(change.rangeOffset, change.rangeLength);
+                if (change.text.length > 0) yText.insert(change.rangeOffset, change.text);
             });
         }, 'vscode-local'); 
     });
+
+
+    
 }
 
 function deactivate() {}
