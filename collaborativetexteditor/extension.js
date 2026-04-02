@@ -6,12 +6,17 @@ const Y = require('yjs');
 const awarenessProtocol = require('y-protocols/awareness');
 
 function activate(context) {
-    console.log('🔥 HTTP/3 UI + Presence Extension Activated!');
+    console.log('HTTP/3 Collaborative Session Extension Activated!');
 
     let localDoc = new Y.Doc();
+    //intializing a shared text type that will hold the document content. This is what we will sync across users.
     let yText = localDoc.getText('vscode-editor-sync');
     let awareness = new awarenessProtocol.Awareness(localDoc);
-    
+    //it represents the counter fo the mutex lock we will use to prevent infinite update loops when 
+    // applying remote changes to the editor. Whenever we receive a remote update, we will increment 
+    // this counter before applying the change, and then decrement it after. When we detect a local 
+    // change, if this counter is greater than 0, it means it's a change that originated from a remote 
+    // update, so we will ignore it and just decrement the counter.
     let remoteUpdateLock = 0;
     let proxyPanel = null;
     let sharedDocumentUri = null;
@@ -33,15 +38,13 @@ function activate(context) {
 
         if (!action) return; 
 
-        // --- NEW: Ask for Display Name ---
         const userName = await vscode.window.showInputBox({
             prompt: 'Enter your Display Name for this session',
             placeHolder: 'e.g., Omar'
         });
 
-        if (!userName) return; // Must have a name to join!
+        if (!userName) return; 
 
-        // Initialize local presence state
         const myColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
         awareness.setLocalStateField('user', { name: userName, color: myColor });
 
@@ -75,7 +78,6 @@ function activate(context) {
     context.subscriptions.push(sessionCommand);
 
     function startNetworkProxy(context, roomId) {
-        // If the panel already exists, just bring it to the front!
         if (proxyPanel) {
             proxyPanel.reveal(vscode.ViewColumn.Beside);
             return;
@@ -147,9 +149,6 @@ function activate(context) {
         awareness.setLocalStateField('cursor', {encodedData: encodedPos,index: offset });
     });
 
-    // --- CURSOR LOGIC: Draw remote cursors on my screen ---
-    // --- UI LOGIC: Draw remote cursors & update Sidebar ---
-    // --- UI LOGIC: Draw remote cursors & update Sidebar ---
     awareness.on('change', () => {
         
         // 1. Update the HTML Sidebar Dashboard
@@ -168,16 +167,9 @@ function activate(context) {
         const targetEditor = vscode.window.visibleTextEditors.find(e => e.document.uri.toString() === sharedDocumentUri);
         if (!targetEditor) return;
 
-        // Safely calculate doc length WITHOUT loading the whole file string into memory
-        const docLength = targetEditor.document.offsetAt(
-            targetEditor.document.lineAt(targetEditor.document.lineCount - 1).range.end
-        );
-
-        // 2. Draw the clean, relative cursors
         awareness.getStates().forEach((state, clientId) => {
             if (clientId === awareness.clientID) return; 
 
-            // If the user hasn't clicked anywhere or is missing data, ignore/clear them
             if (!state.cursor || !state.user || !state.cursor.encodedData) {
                 if (cursorDecorations.has(clientId)) {
                     cursorDecorations.get(clientId).dispose();
@@ -187,7 +179,7 @@ function activate(context) {
             }
 
             try {
-                // 1. Decode the mathematical CRDT position (NO MORE DUMB INTEGERS!)
+                // 1. Decode the mathematical CRDT position 
                 const decodedArray = new Uint8Array(state.cursor.encodedData);
                 const relativePos = Y.decodeRelativePosition(decodedArray);
                 const absolutePos = Y.createAbsolutePositionFromRelativePosition(relativePos, localDoc);
@@ -198,7 +190,6 @@ function activate(context) {
                     // 2. Draw the undeniable 1-character block using the mathematically correct index
                     const startPos = targetEditor.document.positionAt(safeIndex);
                     
-                    // VS Code safely handles index+1 even if it's at the end of the file
                     const endPos = targetEditor.document.positionAt(safeIndex); 
                     const range = new vscode.Range(startPos, endPos); 
                     
@@ -219,7 +210,6 @@ function activate(context) {
         });
     });
 
-    // --- TEXT LOGIC ---
     // --- TEXT LOGIC: INCOMING ---
     yText.observe(event => {
         if (event.transaction.origin === 'vscode-local') return;

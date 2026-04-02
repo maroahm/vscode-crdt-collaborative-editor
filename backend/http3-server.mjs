@@ -2,8 +2,6 @@ import { readFile } from 'node:fs/promises';
 import { Http3Server } from '@fails-components/webtransport';
 import * as Y from 'yjs';
 
-// Central memory bank for all active collaborative rooms
-// Maps RoomID -> { doc: Y.Doc, clients: Set<Writers> }
 const activeRooms = new Map();
 
 async function startWebTransportServer() {
@@ -42,72 +40,98 @@ async function startWebTransportServer() {
 async function handleClientSession(session) {
     try {
         const bidiReader = session.incomingBidirectionalStreams.getReader();
-        while (true) {
-            const { done, value: stream } = await bidiReader.read();
-            if (done) break;
-            
-            const reader = stream.readable.getReader();
-            const writer = stream.writable.getWriter();
-            
-            // The NDJSON Buffer
-            const decoder = new TextDecoder();
-            let buffer = '';
-            let roomId = null;
-            let room = null;
+        const {done, value: textStream} = await bidiReader.read();
+        if(done) return;
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                
-                // Add the new chunk to our running buffer
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop(); // Keep the last incomplete chunk in the buffer!
-                
-                for (const line of lines) {
-                    if (!line) continue;
-                    
-                    // A. THE HANDSHAKE (The very first line is the Room ID)
-                    if (!roomId) {
-                        roomId = line;
-                        console.log(`\n🚪 User joined room: [${roomId}]`);
-                        if (!activeRooms.has(roomId)) {
-                            activeRooms.set(roomId, { doc: new Y.Doc(), clients: new Set() });
-                        }
-                        room = activeRooms.get(roomId);
-                        room.clients.add(writer);
-                        
-                        // Send Initial State properly framed
-                        const stateVector = Y.encodeStateAsUpdate(room.doc);
-                        const syncMsg = JSON.stringify({ type: 'doc', data: Array.from(stateVector) }) + '\n';
-                        await writer.write(new TextEncoder().encode(syncMsg));
-                        continue;
-                    }
-                    
-                    // B. NORMAL MESSAGES
-                    try {
-                        const msg = JSON.parse(line);
-                        // Apply Document math to the server's master copy
-                        if (msg.type === 'doc') {
-                            Y.applyUpdate(room.doc, new Uint8Array(msg.data));
-                        }
-                        
-                        // Broadcast the framed line to everyone else
-                        const outData = new TextEncoder().encode(line + '\n');
-                        for (const clientWriter of room.clients) {
-                            if (clientWriter !== writer) {
-                                clientWriter.write(outData).catch(() => room.clients.delete(clientWriter));
-                            }
-                        }
-                    } catch (e) {
-                        console.log("Parse error, skipping chunk.");
-                    }
-                }
-            }
+        const textReader = textStream.readable.getReader();
+        const textWriter = textStream.writable.getWriter();
+
+        const decoder = new TextDecoder();
+        const {value: handshakeValue} = await textReader.read();
+        const roomId = decoder.decode(handshakeValue).trim();
+        console.log(`\n🚪 User joined room: [${roomId}]`);
+
+        if(!activeRooms.has(roomId)) {
+            activeRooms.set(roomId, { doc: new Y.Doc(), clients: new Set() });
         }
+        const room = activeRooms.get(roomId);
+        const clientInfo = {textWriter, session};
+        room.clients.add(clientInfo);
+
+        const stateVector = Y.encodeStateAsUpdate(room.doc);
+        const syncMsg = JSON.stringify({type: 'doc', data: Array.from(stateVector)}) + '\n';
+        await textWriter.write(new TextEncoder().encode(syncMsg));
+        
+        handleReliableText(textReader, clientInfo, room);
+
+        handleUnreliableDatagrams(session, clientInfo, room);
+
     } catch (error) {
         console.log('⚠️ Peer disconnected.');
     }
 }
 
+async function handleReliableText(reader, senderClient, room){
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try{
+        while(true){
+            const {done, value} = await reader.read();
+            if(done) break;
+
+            buffer += decoder.decode(value, {stream: true});
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+            
+            for(const line of lines){
+                if(!line) continue;
+
+                try{
+                    const msg = JSON.parse(line);
+                    if(msg.type === 'doc'){
+                        Y.applyUpdate(room.doc, new Uint8Array(msg.data));
+                    }
+                    
+                    const outData = new TextEncoder().encode(line + '\n');
+                    for(const client of room.clients){
+                        if(client !== senderClient){
+                            client.textWriter.write(outData).catch(() => room.clients.delete(client));
+                        }
+                    }
+                } catch(e){
+                    console.log("Parse error on text stream.");
+                }
+            }
+        }
+    }catch(error){
+        room.clients.delete(senderClient);
+        console.log('Text stream closed.');
+    }
+
+}
+
+async function handleUnreliableDatagrams(session, senderClient, room){
+    const datagramReader = session.datagrams.readable.getReader();
+    
+    try{
+        while(true){
+            const {done, value} = await datagramReader.read();
+            if(done) break;
+
+            for(const client of room.clients){
+                if(client !== senderClient){
+                    try{
+                        const datagramWriter = client.session.datagrams.writable.getWriter();
+                        datagramWriter.write(value);
+                        datagramWriter.releaseLock();
+                    } catch(e){
+                    }
+                }
+            }
+        }
+    }catch(error){
+        console.log('Datagram stream closed.');
+    }
+}
 startWebTransportServer();

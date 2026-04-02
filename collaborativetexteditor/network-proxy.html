@@ -23,18 +23,26 @@
 
     <script>
         const vscode = acquireVsCodeApi();
-        let transport, writer;
+        let transport= null;
+        let textStreamWriter = null;
+        let datagramWriter = null;
         
         window.addEventListener('message', async event => {
             const message = event.data;
             if (message.type === 'connect') {
-                await connectWebTransport(message.roomId);
+                await connectToRoom(message.roomId);
             } 
-            else if (message.type === 'send-msg' && writer) {
-                const str = JSON.stringify(message.payload) + '\n';
-                await writer.write(new TextEncoder().encode(str));
+            else if (message.type === 'send-msg') {
+                if(message.payload.type === 'doc' && textStreamWriter){
+                    const myString = JSON.stringify({type:'doc', data: message.payload.data}) + '\n';
+                    textStreamWriter.write(new TextEncoder().encode(myString));
+
+                }else if(message.payload.type === 'awareness' && datagramWriter){
+                    const data = new Uint8Array(message.payload.data);
+                    datagramWriter.write(data);
+                }
             }
-            // NEW: Update the UI when users join/leave
+            //Update the UI when users join/leave
             else if (message.type === 'update-users') {
                 const usersList = document.getElementById('users');
                 usersList.innerHTML = ''; // Clear current list
@@ -65,9 +73,8 @@
             }
         });
 
-        async function connectWebTransport(roomId) {
+        async function connectToRoom(roomId) {
             try {
-                // ⚠️ PASTE YOUR COMMA-SEPARATED CERT HASH NUMBERS HERE
                 const hashArray = new Uint8Array([ 27, 5, 168, 213, 109, 254, 75, 61, 64, 32, 165, 206, 94, 234,
                  167, 174, 139, 30, 160, 133, 143, 64, 123, 2, 223, 61, 28, 241, 34, 176, 179, 141]);
                 
@@ -77,38 +84,61 @@
                 
                 await transport.ready;
                 document.getElementById('status').textContent = `🟢 Connected to Room: ${roomId}`;
-                vscode.postMessage({ type: 'status', message: `🔥 Connected! Joining ${roomId}...` });
+                vscode.postMessage({ type: 'status', message: `Connected! Joining ${roomId}...` });
 
-                const stream = await transport.createBidirectionalStream();
-                writer = stream.writable.getWriter();
-                const reader = stream.readable.getReader();
+                const textStream = await transport.createBidirectionalStream();
+                textStreamWriter = textStream.writable.getWriter();
+                const encoder = new TextEncoder();
+                textStreamWriter.write(encoder.encode(roomId + '\n'));
+                readReliableTextStream(textStream.readable);
 
-                await writer.write(new TextEncoder().encode(roomId + '\n'));
-
-                const decoder = new TextDecoder();
-                let buffer = '';
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    
-                    buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop();
-
-                    for (const line of lines) {
-                        if (!line) continue;
-                        try {
-                            const msg = JSON.parse(line);
-                            vscode.postMessage({ type: 'incoming-msg', payload: msg });
-                        } catch(e) {} 
-                    }
-                }
+                datagramWriter = transport.datagrams.writable.getWriter();
+                readUnreliableDatagrams(transport.datagrams.readable);
             } catch (error) {
-                document.getElementById('status').textContent = `🔴 Connection Error`;
-                document.getElementById('status').style.color = 'red';
+                vscode.postMessage({type:'status', message:'connection failed: ' + error.message});
             }
         }
+         
+        async function readReliableTextStream(readable){
+            const reader = readable.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            try{
+                while(true){
+                    const {value, done} = await reader.read();
+                    if(done)break;
+                    buffer += decoder.decode(value, {stream:true});
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+                    for(const line of lines){
+                        if(!line)continue;
+                        try{
+                            const msg = JSON.parse(line);
+                            vscode.postMessage({type:'incoming-msg', payload:msg});
+                        }catch(e){
+                            console.error("JSON Parse Error in proxy");
+                        }
+                    }
+
+                }
+            }catch(e){
+                console.error('Text stream closed:', e);
+            }
+        }
+
+        async function readUnreliableDatagrams(readable){
+            const reader = readable.getReader();
+            try{
+                while(true){
+                    const {value, done} = await reader.read();
+                    if(done)break;
+                    vscode.postMessage({type:'incoming-msg', payload:{type:'awareness', data:Array.from(value)}});
+                }
+            }catch(e){
+                console.error('Datagram stream closed:', e);
+            }
+        }
+               
     </script>
 </body>
 </html>
