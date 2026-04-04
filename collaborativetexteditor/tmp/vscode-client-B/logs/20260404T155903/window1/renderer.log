@@ -1,0 +1,53 @@
+2026-04-04 15:59:05.945 [info] Started local extension host with pid 15528.
+2026-04-04 15:59:06.322 [info] Loading development extension at /home/omar/college/thesis/collaborativetexteditor
+2026-04-04 15:59:07.840 [info] Settings Sync: Account status changed from uninitialized to unavailable
+2026-04-04 15:59:08.719 [error] [Extension Host] (node:15528) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `exe --trace-deprecation ...` to show where the warning was created)
+2026-04-04 15:59:08.720 [error] [Extension Host] (node:15528) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-04-04 15:59:09.331 [info] [perf] Render performance baseline is 26ms
+2026-04-04 15:59:10.810 [error] [Extension Host] Encountered UnhandledRejection: Error: GitHubLoginFailed
+Error: GitHubLoginFailed
+	at Qne._authShowWarnings (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:18465)
+	at async Qne.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:16183)
+	at async sfe.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1364:7787)
+	at async Bue.updateCachedToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:2842:8797)
+2026-04-04 15:59:10.810 [error] [Extension Host] Encountered UnhandledRejection: Error: GitHubLoginFailed
+Error: GitHubLoginFailed
+	at Qne._authShowWarnings (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:18465)
+	at async Qne.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:16183)
+	at async sfe.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1364:7787)
+	at async iS._fetchModels (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:6669:4401)
+2026-04-04 15:59:10.859 [error] CodeExpectedError: No default agent registered
+    at l0e.activateDefaultAgent (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:2881:28562)
+2026-04-04 15:59:11.082 [error] [Extension Host] Encountered UnhandledRejection: Error: GitHubLoginFailed
+Error: GitHubLoginFailed
+	at Qne._authShowWarnings (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:18465)
+	at async Qne.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:16183)
+	at async sfe.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1364:7787)
+	at async Bue.updateCachedToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:2842:8797)
+2026-04-04 15:59:11.184 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:11.225 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:11.226 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:11.596 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:11.818 [error] An unknown error occurred. Please consult the log for more details.
+2026-04-04 15:59:11.872 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:11.920 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:11.927 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:11.934 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:12.069 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:12.175 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:12.176 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:12.176 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:12.556 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:12.558 [error] [Extension Host] callClient: client not ready
+2026-04-04 15:59:16.119 [error] [Extension Host] callClient: client not ready
+2026-04-04 16:01:27.333 [error] [Extension Host] Encountered UnhandledRejection: Error: GitHubLoginFailed
+Error: GitHubLoginFailed
+	at Qne._authShowWarnings (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:18465)
+	at async Qne.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:16183)
+	at async sfe.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1364:7787)
+	at async Bue.updateCachedToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:2842:8797)
+2026-04-04 16:01:28.334 [error] An unknown error occurred. Please consult the log for more details.
+2026-04-04 16:10:09.062 [warning] Attempted to report in-progress status for unknown chat session type 'copilot-cloud-agent'
+2026-04-04 16:10:09.062 [warning] Attempted to report in-progress status for unknown chat session type 'copilotcli'
+2026-04-04 16:10:09.063 [warning] Attempted to report in-progress status for unknown chat session type 'claude-code'

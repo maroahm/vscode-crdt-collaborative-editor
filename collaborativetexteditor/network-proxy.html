@@ -39,7 +39,6 @@
         let textStreamWriter = null;
         let datagramWriter = null;
 
-// 1. FIXED TYPO: 'disconnect-btn'
         document.getElementById('disconnect-btn').addEventListener('click', ()=>{
             document.getElementById('status').textContent = 'Disconnecting...';
             vscode.postMessage({type:'request-disconnect'});
@@ -62,7 +61,6 @@
                     textStreamWriter.write(new TextEncoder().encode(myString));
                 }
             }
-            // 2. NEW: The actual kill switch to close the network pipes!
             else if (message.type === 'execute-disconnect') {
                 if (transport) {
                     transport.close(); 
