@@ -17,8 +17,32 @@
       {
         "command": "collaborativetexteditor.manageSession",
         "title": "HTTP/3 Yjs: Manage Session"
+      },
+      {
+        "command": "collaborativetexteditor.createFile",
+        "title": "HTTP/3 Yjs: Create Shared File"
       }
-    ]
+
+
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "http3-collab",
+          "title": "HTTP/3 Collab",
+          "icon": "$(globe)"
+        
+        }
+      ]
+    },
+    "views": {
+      "http3-collab":[
+        {
+          "id": "sharedSessionExplorer",
+          "name": "Shared Workspace"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",
