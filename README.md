@@ -5,6 +5,10 @@ A high-performance, real-time collaborative text editor built as a VS Code Exten
 ### 🎥 Demo
 
 
+https://github.com/user-attachments/assets/3035abb1-e118-4fd1-838a-a007b1305b2e
+
+
+
 ---
 
 ## 🎯 Project Overview
