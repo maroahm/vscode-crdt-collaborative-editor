@@ -34,7 +34,7 @@
         </ul>
 
     <script>
-        const vscode = acquireVsCodeApi();
+        const vscode = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : { postMessage: (msg) => console.log('VSCode msg:', msg) };
         let transport= null;
         let textStreamWriter = null;
         let datagramWriter = null;
@@ -68,7 +68,7 @@
                 transport = null;
                 textStreamWriter = null;
                 datagramWriter = null;
-                document.getElementById('status').textContent = '🔴 Disconnected';
+                document.getElementById('status').textContent = 'Disconnected';
                 document.getElementById('disconnect-btn').style.display = 'none';
                 document.getElementById('users').innerHTML = ''; // Wipe UI
             }
@@ -105,15 +105,10 @@
 
         async function connectToRoom(roomId) {
             try {
-                const hashArray = new Uint8Array([ 27, 5, 168, 213, 109, 254, 75, 61, 64, 32, 165, 206, 94, 234,
-                 167, 174, 139, 30, 160, 133, 143, 64, 123, 2, 223, 61, 28, 241, 34, 176, 179, 141]);
-                
-                transport = new WebTransport('https://127.0.0.1:4433/yjs-router', {
-                    serverCertificateHashes: [{ algorithm: "sha-256", value: hashArray }]
-                });
+                transport = new WebTransport('https://omar-thesis.duckdns.org:4433/yjs-router');
                 
                 await transport.ready;
-                document.getElementById('status').textContent = `🟢 Connected to Room: ${roomId}`;
+                document.getElementById('status').textContent = `Connected to Room: ${roomId}`;
                 document.getElementById('disconnect-btn').style.display = 'block';
                 vscode.postMessage({ type: 'status', message: `Connected! Joining ${roomId}...` });
                 vscode.postMessage({ type: 'network-connected' });

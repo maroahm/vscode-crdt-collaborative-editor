@@ -9,3 +9,4 @@ dist/
 *.jpeg
 .DS_Store
 Thumbs.db
+screenshots/

@@ -10,8 +10,11 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
-			]
+    "--extensionDevelopmentPath=${workspaceFolder}",
+    "--ignore-certificate-errors",
+    "--allow-insecure-localhost",
+    "--unsafely-treat-insecure-origin-as-secure=https://10.53.45.139:4433"
+]
 		}
 	]
 }
