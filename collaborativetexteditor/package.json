@@ -21,9 +21,12 @@
       {
         "command": "collaborativetexteditor.createFile",
         "title": "HTTP/3 Yjs: Create Shared File"
+      },
+      {
+        "command": "collaborativetexteditor.deleteSharedFile",
+        "title": "HTTP/3 Yjs: Delete Shared File",
+        "icon": "$(trash)"
       }
-
-
     ],
     "viewsContainers": {
       "activitybar": [
@@ -31,15 +34,28 @@
           "id": "http3-collab",
           "title": "HTTP/3 Collab",
           "icon": "$(globe)"
-        
         }
       ]
     },
     "views": {
-      "http3-collab":[
+      "http3-collab": [
         {
           "id": "sharedSessionExplorer",
           "name": "Shared Workspace"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "collaborativetexteditor.deleteSharedFile",
+          "when": "view == sharedSessionExplorer && viewItem == sharedFile",
+          "group": "inline"
+        },
+        {
+          "command": "collaborativetexteditor.deleteSharedFile",
+          "when": "view == sharedSessionExplorer && viewItem == sharedFile",
+          "group": "1_modification"
         }
       ]
     }

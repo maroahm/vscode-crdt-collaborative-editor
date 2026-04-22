@@ -8,19 +8,20 @@ async function startWebTransportServer() {
     console.log('Booting HTTP/3 Yjs Multiplexing Server...');
 
     try {
-        const key = await readFile('../collaborativetexteditor/key.pem');
-        const cert = await readFile('../collaborativetexteditor/cert.pem');
+        const key = await readFile('./key.pem');
+        const cert = await readFile('./cert.pem');
+
 
         const h3Server = new Http3Server({
             port: 4433,
-            host: '127.0.0.1',
+            host: '0.0.0.0',
             secret: 'thesis-secret-key', 
             cert: cert,
             privKey: key,
         });
 
         h3Server.startServer();
-        console.log('WebTransport Router running on https://127.0.0.1:4433/yjs-router');
+        console.log('WebTransport Router running on https://0.0.0.0:4433/yjs-router');
         
         // ALL clients connect to this single router endpoint
         const sessionStream = h3Server.sessionStream('/yjs-router');
@@ -49,7 +50,7 @@ async function handleClientSession(session) {
         const decoder = new TextDecoder();
         const {value: handshakeValue} = await textReader.read();
         const roomId = decoder.decode(handshakeValue).trim();
-        console.log(`\n🚪 User joined room: [${roomId}]`);
+        console.log(`\nUser joined room: [${roomId}]`);
 
         if(!activeRooms.has(roomId)) {
             activeRooms.set(roomId, { doc: new Y.Doc(), clients: new Set() });
@@ -67,7 +68,7 @@ async function handleClientSession(session) {
         handleUnreliableDatagrams(session, clientInfo, room);
 
     } catch (error) {
-        console.log('⚠️ Peer disconnected.');
+        console.log('Peer disconnected.');
     }
 }
 

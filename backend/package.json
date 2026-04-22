@@ -5,14 +5,14 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "node http3-server.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fails-components/webtransport": "^1.5.3",
+    "@fails-components/webtransport": "^1.6.2",
     "@fails-components/webtransport-transport-http3-quiche": "^1.5.3",
     "ws": "^8.19.0",
     "yjs": "^13.6.30"
