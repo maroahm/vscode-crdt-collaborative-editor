@@ -1,0 +1,17 @@
+2026-04-18 17:37:57.781 [info] Extension host with pid 36974 started
+2026-04-18 17:37:57.824 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: true, activationEvent: '*', root cause: vscode.git
+2026-04-18 17:37:57.833 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2026-04-18 17:37:57.899 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2026-04-18 17:37:57.979 [info] ExtensionService#_doActivateExtension vscode.github-authentication, startup: false, activationEvent: 'onAuthenticationRequest:github'
+2026-04-18 17:37:58.016 [warning] [vscode.git] Accessing a resource scoped configuration without providing a resource is not expected. To get the effective value for 'git.openRepositoryInParentFolders', provide the URI of a resource or 'null' for any resource.
+2026-04-18 17:37:58.016 [warning] [vscode.git] Accessing a resource scoped configuration without providing a resource is not expected. To get the effective value for 'git.showProgress', provide the URI of a resource or 'null' for any resource.
+2026-04-18 17:37:58.026 [info] Eager extensions activated
+2026-04-18 17:37:58.044 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2026-04-18 17:37:58.047 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2026-04-18 17:37:58.069 [info] ExtensionService#_doActivateExtension evendead.help-me-add, startup: false, activationEvent: 'onStartupFinished'
+2026-04-18 17:37:58.071 [info] ExtensionService#_doActivateExtension kleber-swf.unity-code-snippets, startup: false, activationEvent: 'onStartupFinished'
+2026-04-18 17:37:58.098 [info] ExtensionService#_doActivateExtension vscode.microsoft-authentication, startup: false, activationEvent: 'onAuthenticationRequest:microsoft'
+2026-04-18 17:38:01.026 [info] ExtensionService#_doActivateExtension omar.collaborativetexteditor, startup: false, activationEvent: 'onCommand:collaborativetexteditor.manageSession'
+2026-04-18 17:38:04.434 [warning] omar.collaborativetexteditor created a webview without a content security policy: https://aka.ms/vscode-webview-missing-csp
+2026-04-18 17:40:57.306 [info] Extension host terminating: renderer closed the MessagePort
+2026-04-18 17:41:02.310 [info] Extension host with pid 36974 exiting with code 0

@@ -1,0 +1,98 @@
+4/10/2026, 1:51:47 PM 683 AutomaticUpdateCheck
+Checking for updates after 300000. Last Update Date: 1970-01-01T00:00:00.000Z. Current Date: 2026-04-10T11:51:47.671Z
+
+4/10/2026, 1:51:47 PM 683 AutomaticUpdateCheck
+Commencing updates at 1775821907683 in 300000 ms.
+
+4/10/2026, 1:51:47 PM 685 DotnetVSCodeExtensionFound
+true
+Checking extension vscode.csharp for .NET installation requests
+
+4/10/2026, 1:51:47 PM 685 DotnetVSCodeExtensionFound
+true
+Checking extension vscode.dotenv for .NET installation requests
+
+4/10/2026, 1:51:47 PM 685 DotnetVSCodeExtensionFound
+true
+Checking extension vscode.mermaid-chat-features for .NET installation requests
+
+4/10/2026, 1:51:47 PM 685 DotnetVSCodeExtensionFound
+true
+Checking extension vscode.prompt for .NET installation requests
+
+4/10/2026, 1:51:47 PM 685 DotnetVSCodeExtensionFound
+true
+Checking extension codezombiech.gitignore for .NET installation requests
+
+4/10/2026, 1:51:47 PM 685 DotnetVSCodeExtensionFound
+true
+Checking extension dbaeumer.vscode-eslint for .NET installation requests
+
+4/10/2026, 1:51:47 PM 685 DotnetVSCodeExtensionFound
+true
+Checking extension evendead.help-me-add for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension google.geminicodeassist for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension kleber-swf.unity-code-snippets for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension ms-azuretools.vscode-containers for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension ms-dotnettools.csdevkit for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension ms-dotnettools.csharp for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension ms-dotnettools.vscode-dotnet-runtime for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension ms-vscode.extension-test-runner for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension visualstudiotoolsforunity.vstuc for .NET installation requests
+
+4/10/2026, 1:51:47 PM 686 DotnetVSCodeExtensionFound
+true
+Checking extension omar.collaborativetexteditor for .NET installation requests
+
+4/10/2026, 1:56:47 PM 699 GenericDotnetLockEvent
+Action: session-2fe1b5b036 Lock acquired: /run/user/1000/vscd-session-2fe1b5b036.sock
+2026-04-10T11:56:47.699Z
+session-2fe1b5b036
+session-2fe1b5b036
+true
+
+4/10/2026, 1:56:47 PM 699 GenericDotnetLockEvent
+Action: installedLk-23030b18-49cb-4d52-b67e-69dafc8f71fa Lock acquired: /run/user/1000/vscd-installedLk.sock
+2026-04-10T11:56:47.699Z
+installedLk
+installedLk
+true
+
+4/10/2026, 1:56:47 PM 703 FoundTrackingVersions
+true
+installed :
+                        
+
+4/10/2026, 1:56:47 PM 703 GenericDotnetLockEvent
+Action: installedLk-23030b18-49cb-4d52-b67e-69dafc8f71fa Lock freed: /run/user/1000/vscd-installedLk.sock
+2026-04-10T11:56:47.703Z
+installedLk
+installedLk
+true
+
+4/10/2026, 1:56:47 PM 703 UpdatingInstallGroups
+Automatic update triggered and detected the following install groups: []

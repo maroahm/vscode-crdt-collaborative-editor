@@ -1,0 +1,20 @@
+2026-04-10 15:44:37.356 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.409 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.426 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.465 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.608 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.630 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.669 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.759 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.791 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.850 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.901 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:37.970 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:38.035 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:39.473 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:40.160 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:45:07.133 [info] Getting Manifest... github.copilot-chat
+2026-04-10 15:45:07.808 [info] Installing extension: github.copilot-chat {"productVersion":{"version":"1.115.0","date":"2026-04-07T22:15:24.268Z"},"pinned":false,"operation":3,"isApplicationScoped":true,"profileLocation":{"$mid":1,"external":"vscode-userdata:/home/omar/.vscode/extensions/extensions.json","path":"/home/omar/.vscode/extensions/extensions.json","scheme":"vscode-userdata"}}
+2026-04-10 15:45:07.867 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:45:07.868 [error] Error while installing the extension github.copilot-chat Cannot read the extension from /home/omar/.vscode/extensions/github.copilot-chat-0.43.0 vscode-userdata:/home/omar/.vscode/extensions/extensions.json
+2026-04-10 15:45:07.900 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.

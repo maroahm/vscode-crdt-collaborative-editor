@@ -1,0 +1,2 @@
+2026-04-18 17:42:40.470 [error] electron #1: https://az764295.vo.msecnd.net/extensions/marketplace.json - error GET net::ERR_NAME_NOT_RESOLVED
+2026-04-18 17:47:42.821 [error] electron #6: https://az764295.vo.msecnd.net/extensions/marketplace.json - error GET net::ERR_NAME_NOT_RESOLVED

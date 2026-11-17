@@ -1,0 +1,6 @@
+2026-04-10 13:51:14.952 [info] update#setState idle
+2026-04-10 13:51:44.954 [info] update#setState checking for updates
+2026-04-10 13:51:45.003 [info] update#setState idle
+2026-04-10 13:51:47.370 [info] Extension host with pid 7623 exited with code: 0, signal: unknown.
+2026-04-10 14:19:42.068 [info] Extension host with pid 8201 exited with code: 0, signal: unknown.
+2026-04-10 14:19:42.127 [error] [UtilityProcess id: 2, type: fileWatcher, pid: 8186]: crashed with code 15 and reason 'killed'
