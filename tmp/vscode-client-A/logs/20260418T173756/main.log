@@ -1,0 +1,5 @@
+2026-04-18 17:37:56.866 [info] update#setState idle
+2026-04-18 17:38:26.845 [info] update#setState checking for updates
+2026-04-18 17:38:26.849 [info] update#setState available for download
+2026-04-18 17:40:57.324 [error] [UtilityProcess id: 1, type: fileWatcher, pid: 36954]: crashed with code 15 and reason 'killed'
+2026-04-18 17:41:02.311 [info] Extension host with pid 36974 exited with code: 0, signal: unknown.

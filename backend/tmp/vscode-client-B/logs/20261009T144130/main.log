@@ -1,0 +1,11 @@
+2026-10-09 14:41:30.615 [info] [node-compile-cache] main: packaged cache inactive (status: disabled, configured: /usr/share/code/resources/app/node-compile-cache/main, active: none)
+2026-10-09 14:41:30.683 [info] StorageMainService: creating application shared storage
+2026-10-09 14:41:30.820 [info] [shared storage] Creating shared storage database at '/home/omar/.vscode-shared/sharedStorage/state.vscdb' (wasCreated: false)
+2026-10-09 14:41:30.820 [info] [shared storage] Initializing fallback application storage (path: /home/omar/college/thesis/backend/tmp/vscode-client-B/User/globalStorage/state.vscdb)
+2026-10-09 14:41:30.861 [info] [shared storage] Fallback application storage initialized with 3 items
+2026-10-09 14:41:32.810 [info] update#setState idle
+2026-10-09 14:41:32.868 [info] AgentHostProcessManager: agent host started
+2026-10-09 14:41:33.634 [error] [AgentHost:stderr] (node:16067) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `exe --trace-deprecation ...` to show where the warning was created)
+
+2026-10-09 14:41:35.054 [info] Extension host with pid 16154 exited with code: 0, signal: unknown.

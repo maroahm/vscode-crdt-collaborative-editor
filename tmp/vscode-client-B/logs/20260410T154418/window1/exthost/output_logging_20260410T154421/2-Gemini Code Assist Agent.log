@@ -1,0 +1,24 @@
+Starting background process...
+Background process started with PID 153732
+Ignore file not found: /home/omar/college/thesis/.geminiignore, continue without it.
+Ignore file not found: /home/omar/college/thesis/.aiexclude, continue without it.
+[DEBUG] [MemoryDiscovery] Loading server hierarchical memory for CWD: /home/omar/college/thesis (importFormat: tree)
+[DEBUG] [MemoryDiscovery] Searching for GEMINI.md starting from CWD: /home/omar/college/thesis
+[DEBUG] [MemoryDiscovery] Determined project root: /home/omar/college/thesis
+[DEBUG] [MemoryDiscovery] No GEMINI.md files found in hierarchy of the workspace.
+Ignore file not found: /home/omar/college/thesis/.geminiignore, continue without it.
+Ignore file not found: /home/omar/college/thesis/.aiexclude, continue without it.
+Ignore file not found: /home/omar/college/thesis/.geminiignore, continue without it.
+Ignore file not found: /home/omar/college/thesis/.aiexclude, continue without it.
+Ignore file not found: /home/omar/college/thesis/.geminiignore, continue without it.
+Ignore file not found: /home/omar/college/thesis/.aiexclude, continue without it.
+Hook registry initialized with 0 hook entries
+Hook system initialized successfully
+[DEBUG] [MemoryDiscovery] Loading environment memory for trusted root: /home/omar/college/thesis (Stopping at git root: /home/omar/college/thesis)
+[DEBUG] [MemoryDiscovery] Starting upward search from /home/omar/college/thesis stopping at /home/omar/college/thesis
+[STARTUP] StartupProfiler.flush() called with 1 phases
+[STARTUP] Recording metric for phase: discover_tools duration: 1783.6496199999997
+[INFO] 2026-04-10 15:44:28.874 PM -- [Config] Using CCPA Auth:
+[INFO] 2026-04-10 15:44:28.875 PM -- [Config] Skipping LOGIN_WITH_GOOGLE due to headless mode. Attempting COMPUTE_ADC.
+Keychain initialization encountered an error: Cannot find package 'keytar' imported from /home/omar/.vscode/extensions/google.geminicodeassist-2.77.3/agent/a2a-server.mjs
+Using FileKeychain fallback for secure storage.

@@ -1,0 +1,63 @@
+2026-04-10 15:44:20.586 [info] Started local extension host with pid 152936.
+2026-04-10 15:44:20.756 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.114.0. Extension requires: ^1.115.0.
+2026-04-10 15:44:20.853 [error] Error: Unable to read file '/home/omar/college/thesis/node_modules/package.json' (Error: Unable to resolve nonexistent file '/home/omar/college/thesis/node_modules/package.json')
+    at nse.restoreReadError (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5026:91010)
+    at nse.doReadFileStream (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5026:90793)
+    at async nse.doReadFile (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5026:90053)
+    at async fGe.scanExtensionManifest (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:28335)
+    at async fGe.scanExtension (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:26650)
+    at async Promise.all (index 21)
+    at async fGe.scanExtensionsFromLocation (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:24905)
+    at async fGe.scanOneOrMultipleExtensions (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:26474)
+    at async vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:16786
+    at async Promise.all (index 0)
+    at async Apt.scanExtensionsUnderDevelopment (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:16563)
+    at async BGe._scanInstalledExtensions (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5082:7972)
+    at async BGe.startScanningExtensions (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5082:7013)
+2026-04-10 15:44:20.857 [error] Error: Unable to read file '/home/omar/college/thesis/tmp/package.json' (Error: Unable to resolve nonexistent file '/home/omar/college/thesis/tmp/package.json')
+    at nse.restoreReadError (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5026:91010)
+    at nse.doReadFileStream (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5026:90793)
+    at async nse.doReadFile (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5026:90053)
+    at async fGe.scanExtensionManifest (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:28335)
+    at async fGe.scanExtension (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:26650)
+    at async Promise.all (index 24)
+    at async fGe.scanExtensionsFromLocation (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:24905)
+    at async fGe.scanOneOrMultipleExtensions (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:26474)
+    at async vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:16786
+    at async Promise.all (index 0)
+    at async Apt.scanExtensionsUnderDevelopment (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5036:16563)
+    at async BGe._scanInstalledExtensions (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5082:7972)
+    at async BGe.startScanningExtensions (vscode-file://vscode-app/usr/share/code/resources/app/out/vs/workbench/workbench.desktop.main.js:5082:7013)
+2026-04-10 15:44:20.863 [error] [/home/omar/college/thesis]: property `engines` is mandatory and must be of type `object`
+2026-04-10 15:44:20.864 [info] Loading development extension at /home/omar/college/thesis/collaborativetexteditor
+2026-04-10 15:44:21.986 [info] Settings Sync: Account status changed from uninitialized to unavailable
+2026-04-10 15:44:23.532 [error] [Extension Host] (node:152936) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `exe --trace-deprecation ...` to show where the warning was created)
+2026-04-10 15:44:23.532 [error] [Extension Host] (node:152936) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-04-10 15:44:24.674 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:24.676 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:24.976 [error] [Extension Host] Encountered UnhandledRejection: Error: GitHubLoginFailed
+Error: GitHubLoginFailed
+	at Qne._authShowWarnings (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:18465)
+	at async Qne.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:16183)
+	at async sfe.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1364:7787)
+	at async Bue.updateCachedToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:2842:8797)
+2026-04-10 15:44:24.976 [error] [Extension Host] Encountered UnhandledRejection: Error: GitHubLoginFailed
+Error: GitHubLoginFailed
+	at Qne._authShowWarnings (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:18465)
+	at async Qne.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1686:16183)
+	at async sfe.getCopilotToken (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:1364:7787)
+	at async iS._fetchModels (/home/omar/.vscode/extensions/github.copilot-chat-0.42.3/dist/extension.js:6669:4401)
+2026-04-10 15:44:25.328 [info] [perf] Render performance baseline is 24ms
+2026-04-10 15:44:25.637 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:26.044 [error] An unknown error occurred. Please consult the log for more details.
+2026-04-10 15:44:26.116 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:26.117 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:26.667 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:26.667 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:26.674 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:26.674 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:26.675 [error] [Extension Host] callClient: client not ready
+2026-04-10 15:44:29.152 [warning] Attempted to report in-progress status for unknown chat session type 'copilot-cloud-agent'
+2026-04-10 15:44:29.153 [warning] Attempted to report in-progress status for unknown chat session type 'copilotcli'
+2026-04-10 15:44:29.153 [warning] Attempted to report in-progress status for unknown chat session type 'claude-code'

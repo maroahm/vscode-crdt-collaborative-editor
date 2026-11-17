@@ -1,12 +1,4 @@
-tmp/
-node_modules/
-npm-debug.log
+node_modules
 .vscode-test/
-out/
-dist/
-*.png
-*.jpg
-*.jpeg
-.DS_Store
-Thumbs.db
-screenshots/
+*.vsix
+.env

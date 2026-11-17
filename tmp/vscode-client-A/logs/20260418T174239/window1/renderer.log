@@ -1,0 +1,15 @@
+2026-04-18 17:42:40.200 [info] Loading development extension at /home/omar/college/thesis/collaborativetexteditor
+2026-04-18 17:42:40.505 [warning] [vscode.php]: One or more snippets from the extension 'php' very likely confuse snippet-variables and snippet-placeholders (see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax for more details)
+2026-04-18 17:42:42.860 [info] [perf] Render performance baseline is 25ms
+2026-04-18 17:42:43.286 [error] [/home/omar/.vscode/extensions/ms-vscode.extension-test-runner-0.0.14]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.88.0-insider.
+2026-04-18 17:42:43.305 [error] [/home/omar/.vscode/extensions/ms-dotnettools.vscode-dotnet-runtime-3.0.0]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.101.0.
+2026-04-18 17:42:43.305 [error] [/home/omar/.vscode/extensions/dbaeumer.vscode-eslint-3.0.24]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.90.0.
+2026-04-18 17:42:43.306 [error] [/home/omar/.vscode/extensions/google.geminicodeassist-2.78.0]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.97.0.
+2026-04-18 17:42:43.312 [error] [/home/omar/.vscode/extensions/ms-dotnettools.csdevkit-3.10.14-linux-x64]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.95.0.
+2026-04-18 17:42:43.313 [error] [/home/omar/.vscode/extensions/ms-azuretools.vscode-containers-2.4.1]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.105.0.
+2026-04-18 17:42:43.314 [error] [/home/omar/.vscode/extensions/qwtel.sqlite-viewer-25.12.2-linux-x64]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.83.1.
+2026-04-18 17:42:43.317 [error] [/home/omar/.vscode/extensions/ms-dotnettools.csharp-2.130.5-linux-x64]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.106.0.
+2026-04-18 17:42:43.318 [error] [/home/omar/.vscode/extensions/ms-vscode-remote.remote-containers-0.454.0]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.101.0.
+2026-04-18 17:42:43.321 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.42.3]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.111.0.
+2026-04-18 17:42:43.323 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.43.0]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.115.0.
+2026-04-18 17:42:43.325 [error] [/home/omar/.vscode/extensions/github.copilot-chat-0.44.1]: Extension is not compatible with Code 1.82.0. Extension requires: ^1.116.0.
