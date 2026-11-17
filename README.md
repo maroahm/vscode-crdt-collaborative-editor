@@ -11,6 +11,7 @@ https://github.com/user-attachments/assets/3035abb1-e118-4fd1-838a-a007b1305b2e
 
 ---
 
+
 ## 🎯 Project Overview
 
 Traditional collaborative editors (like VS Code Live Share) rely on TCP-based WebSockets or Host-Guest RPC tunnels. These architectures are susceptible to single points of failure, security risks via compute sharing, and Application-Level Head-of-Line (HoL) blocking—where heavy document mutations bottleneck lightweight cursor UI updates.
@@ -46,6 +47,15 @@ As part of the research and development of this extension, several critical dist
 * **The Decision (Chosen):** Engineered a graceful Inter-Process Communication (IPC) teardown sequence. Disconnecting triggers an explicit "Tombstone" broadcast (`awareness.setLocalState(null)`), followed by a deliberate event-loop delay to guarantee the final datagram flushes to the physical network layer before severing the underlying HTTP/3 pipes.
 
 ---
+## HTTP/3 vs. HTTP/2 Performance Comparison
+
+To measure real-time synchronization latency, I compared this **HTTP/3 (WebTransport / QUIC)** version of CTEX against another version that used **HTTP/2 (WebSockets)**. Across both clean baseline conditions and degraded network tests, the **HTTP/3 version performed significantly better**, cutting average round-trip latency by 40% under normal conditions and over 18% under packet loss and high latency.
+
+| Metric | HTTP/2 Version (Baseline) | HTTP/3 Version (Baseline) | HTTP/2 Version (Degraded) | HTTP/3 Version (Degraded) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Average RTT** | 94.11 ms | **56.44 ms** (-40.0%) | 269.24 ms | **219.94 ms** (-18.3%) |
+| **Median RTT** | 69.90 ms | **40.67 ms** (-41.8%) | 188.31 ms | **159.20 ms** (-15.5%) |
+| **Max Spike** | 568.10 ms | **344.59 ms** (-39.3%) | 1373.18 ms | **1296.00 ms** (-5.6%) |
 
 ## 🚀 Getting Started
 
